@@ -24,6 +24,8 @@ from omni.isaac.orbit.app import AppLauncher
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="This script demonstrates different single-arm manipulators.")
+parser.add_argument("--save", action="store_true", default=False, help="Save the obtained data to disk.")
+
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
 # parse the arguments
@@ -33,16 +35,20 @@ args_cli = parser.parse_args()
 app_launcher = AppLauncher(args_cli)
 simulation_app = app_launcher.app
 
+import os
 import torch
 import traceback
 
 import carb
+import omni.replicator.core as rep
 import omni.isaac.core.utils.prims as prim_utils
 import omni.isaac.orbit.sim as sim_utils
 from omni.isaac.orbit.assets import Articulation
 from omni.isaac.orbit.sensors.camera import Camera, CameraCfg
 from omni.isaac.orbit.assets import RigidObject, RigidObjectCfg
 from omni.isaac.orbit.utils.assets import NVIDIA_NUCLEUS_DIR, ISAAC_NUCLEUS_DIR
+from omni.isaac.orbit.utils import convert_dict_to_backend
+from omni.isaac.orbit.utils.math import project_points, unproject_depth
 
 ##
 # Pre-defined configs
@@ -143,6 +149,10 @@ def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, Articula
     # extract entities for simplified notation
     camera: Camera = entities["camera"]
 
+    # Create replicator writer
+    output_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "output", "ray_caster_camera")
+    rep_writer = rep.BasicWriter(output_dir=output_dir, frame_padding=3)
+
     eyes = torch.tensor([[0, -1, 1.5], [0, -1, 1.5]], device=sim.device)
     targets = torch.tensor([[0.0, -1.75, 1.0], [0.0, -1.75, 1.0]], device=sim.device)
     camera.set_world_poses_from_view(eyes, targets)
@@ -154,6 +164,46 @@ def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, Articula
     count = 0
     # Simulate physics
     while simulation_app.is_running():
+        # Extract camera data
+        if args_cli.save:
+            # Extract camera data
+            camera_index = 0
+            # note: BasicWriter only supports saving data in numpy format, so we need to convert the data to numpy.
+            if sim.backend == "torch":
+                # tensordict allows easy indexing of tensors in the dictionary
+                single_cam_data = convert_dict_to_backend(camera.data.output[camera_index], backend="numpy")
+            else:
+                # for numpy, we need to manually index the data
+                single_cam_data = dict()
+                for key, value in camera.data.output.items():
+                    single_cam_data[key] = value[camera_index]
+            # Extract the other information
+            single_cam_info = camera.data.info[camera_index]
+
+            # Pack data back into replicator format to save them using its writer
+            rep_output = dict()
+            for key, data, info in zip(single_cam_data.keys(), single_cam_data.values(), single_cam_info.values()):
+                if info is not None:
+                    rep_output[key] = {"data": data, "info": info}
+                else:
+                    rep_output[key] = data
+            # Save images
+            rep_output["trigger_outputs"] = {"on_time": camera.frame[camera_index]}
+            rep_writer.write(rep_output)
+
+            # Pointcloud in world frame
+            points_3d_cam = unproject_depth(
+                camera.data.output["distance_to_image_plane"], camera.data.intrinsic_matrices
+            )
+
+            # Check methods are valid
+            im_height, im_width = camera.image_shape
+            # -- project points to (u, v, d)
+            reproj_points = project_points(points_3d_cam, camera.data.intrinsic_matrices)
+            reproj_depths = reproj_points[..., -1].view(-1, im_width, im_height).transpose_(1, 2)
+            sim_depths = camera.data.output["distance_to_image_plane"].squeeze(-1)
+            torch.testing.assert_close(reproj_depths, sim_depths)
+
         # reset
         if count % 200 == 0:
             # reset counters

@@ -16,7 +16,7 @@ Reference: https://github.com/frankaemika/franka_ros
 import omni.isaac.orbit.sim as sim_utils
 from omni.isaac.orbit.actuators import ImplicitActuatorCfg
 from omni.isaac.orbit.assets.articulation import ArticulationCfg
-from omni.isaac.orbit.utils.assets import ISAAC_ORBIT_NUCLEUS_DIR, ISAAC_NUCLEUS_DIR
+from omni.isaac.orbit.utils.assets import ISAAC_NUCLEUS_DIR
 
 ##
 # Configuration
@@ -63,6 +63,13 @@ KINOVA_CFG = ArticulationCfg(
             "j2n6s300_joint_5": 180 * deg2rad,
             "j2n6s300_joint_6": 180 * deg2rad,
             "j2n6s300_joint_finger.*": 1,
+            # "j2n6s300_link_1": 0 * deg2rad,
+            # "j2n6s300_link_2": 180 * deg2rad,
+            # "j2n6s300_link_3": 180 * deg2rad,
+            # "j2n6s300_link_4": 180 * deg2rad,
+            # "j2n6s300_link_5": 180 * deg2rad,
+            # "j2n6s300_link_6": 180 * deg2rad,
+            # "j2n6s300_link_finger.*": 1,
         },
     ),
     actuators={
@@ -80,25 +87,44 @@ KINOVA_CFG = ArticulationCfg(
         #     stiffness=80.0,
         #     damping=4.0,
         # ),
+
         "end_effector": ImplicitActuatorCfg(
-            joint_names_expr=["j2n6s300_joint_finger_.*"],
+            # joint_names_expr=["j2n6s300_joint_finger_[1-3], j2n6s300_joint_finger_tip_[1-3]"],
+            joint_names_expr=["j2n6s300_joint_finger.*"],
             effort_limit=200.0,
             velocity_limit=0.2,
             stiffness=2e3,
             damping=1e2,
         ),
+        # "j2n6s300_joint_finger_[1-3]": ImplicitActuatorCfg(
+        #     # joint_names_expr=["j2n6s300_joint_finger_[1-3], j2n6s300_joint_finger_tip_[1-3]"],
+        #     joint_names_expr=["j2n6s300_joint_finger.*"],
+        #     effort_limit=200.0,
+        #     velocity_limit=0.2,
+        #     stiffness=2e3,
+        #     damping=1e2,
+        # ),
+        # "j2n6s300_joint_finger_tip_[1-3]": ImplicitActuatorCfg(
+        #     # joint_names_expr=["j2n6s300_joint_finger_[1-3], j2n6s300_joint_finger_tip_[1-3]"],
+        #     joint_names_expr=["j2n6s300_joint_finger.*"],
+        #     effort_limit=200.0,
+        #     velocity_limit=0.2,
+        #     stiffness=2e3,
+        #     damping=1e2,
+        # ),
     },
+
     soft_joint_pos_limit_factor=1.0,
 )
 """Configuration of Franka Emika Panda robot."""
 
 
-FRANKA_PANDA_HIGH_PD_CFG = KINOVA_CFG.copy()
-FRANKA_PANDA_HIGH_PD_CFG.spawn.rigid_props.disable_gravity = True
-FRANKA_PANDA_HIGH_PD_CFG.actuators["arm"].stiffness = 400.0
-FRANKA_PANDA_HIGH_PD_CFG.actuators["arm"].damping = 80.0
-FRANKA_PANDA_HIGH_PD_CFG.actuators["end_effector"].stiffness = 400.0
-FRANKA_PANDA_HIGH_PD_CFG.actuators["end_effector"].damping = 80.0
+# FRANKA_PANDA_HIGH_PD_CFG = KINOVA_CFG.copy()
+# FRANKA_PANDA_HIGH_PD_CFG.spawn.rigid_props.disable_gravity = True
+# FRANKA_PANDA_HIGH_PD_CFG.actuators["arm"].stiffness = 400.0
+# FRANKA_PANDA_HIGH_PD_CFG.actuators["arm"].damping = 80.0
+# FRANKA_PANDA_HIGH_PD_CFG.actuators["end_effector"].stiffness = 400.0
+# FRANKA_PANDA_HIGH_PD_CFG.actuators["end_effector"].damping = 80.0
 """Configuration of Franka Emika Panda robot with stiffer PD control.
 
 This configuration is useful for task-space control using differential IK.

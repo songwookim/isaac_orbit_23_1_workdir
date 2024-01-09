@@ -101,6 +101,7 @@ def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, Articula
     # Simulate physics
     while simulation_app.is_running():
         # reset
+        
         if count % 200 == 0:
             # reset counters
             sim_time = 0.0
@@ -138,7 +139,7 @@ def run_simulator(sim: sim_utils.SimulationContext, entities: dict[str, Articula
 def main():
     """Main function."""
     # Initialize the simulation context
-    sim_cfg = sim_utils.SimulationCfg()
+    sim_cfg = sim_utils.SimulationCfg(use_fabric=False)
     sim = sim_utils.SimulationContext(sim_cfg)
     # Set main camera
     sim.set_camera_view([3.5, 0.0, 3.2], [0.0, 0.0, 0.5])
