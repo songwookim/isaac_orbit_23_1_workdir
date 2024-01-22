@@ -24,5 +24,6 @@ import toml
 import os
 import toml
 import orbit_tasks.manipulation.reach.config.kinova
+import orbit_tasks.manipulation.lift.config.kinova
 # from omni.isaac.orbit_tasks.utils import import_packages
 # import_packages(__name__)

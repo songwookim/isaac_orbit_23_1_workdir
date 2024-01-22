@@ -56,13 +56,16 @@ KINOVA_CFG = ArticulationCfg(
         #     # "j2n6s300_link_finger_tip_3",
         # },
         joint_pos={
+            # Pick Init State
             "j2n6s300_joint_1": 0 * deg2rad,
-            "j2n6s300_joint_2": 180 * deg2rad,
-            "j2n6s300_joint_3": 180 * deg2rad,
-            "j2n6s300_joint_4": 180 * deg2rad,
-            "j2n6s300_joint_5": 180 * deg2rad,
-            "j2n6s300_joint_6": 180 * deg2rad,
-            "j2n6s300_joint_finger.*": 1,
+            "j2n6s300_joint_2": 150 * deg2rad,
+            "j2n6s300_joint_3": 240 * deg2rad,
+            "j2n6s300_joint_4": 90 * deg2rad,
+            "j2n6s300_joint_5": 0 * deg2rad,
+            "j2n6s300_joint_6": 240 * deg2rad,
+            "j2n6s300_joint_finger.*": 0.3,
+
+            # Candle Like Pose
             # "j2n6s300_link_1": 0 * deg2rad,
             # "j2n6s300_link_2": 180 * deg2rad,
             # "j2n6s300_link_3": 180 * deg2rad,
@@ -80,13 +83,6 @@ KINOVA_CFG = ArticulationCfg(
             stiffness=80.0,
             damping=4.0,
         ),
-        # "panda_forearm": ImplicitActuatorCfg(
-        #     joint_names_expr=["panda_joint[5-7]"],
-        #     effort_limit=12.0,
-        #     velocity_limit=2.61,
-        #     stiffness=80.0,
-        #     damping=4.0,
-        # ),
 
         "end_effector": ImplicitActuatorCfg(
             # joint_names_expr=["j2n6s300_joint_finger_[1-3], j2n6s300_joint_finger_tip_[1-3]"],
@@ -119,12 +115,12 @@ KINOVA_CFG = ArticulationCfg(
 """Configuration of Franka Emika Panda robot."""
 
 
-# FRANKA_PANDA_HIGH_PD_CFG = KINOVA_CFG.copy()
-# FRANKA_PANDA_HIGH_PD_CFG.spawn.rigid_props.disable_gravity = True
-# FRANKA_PANDA_HIGH_PD_CFG.actuators["arm"].stiffness = 400.0
-# FRANKA_PANDA_HIGH_PD_CFG.actuators["arm"].damping = 80.0
-# FRANKA_PANDA_HIGH_PD_CFG.actuators["end_effector"].stiffness = 400.0
-# FRANKA_PANDA_HIGH_PD_CFG.actuators["end_effector"].damping = 80.0
+FRANKA_PANDA_HIGH_PD_CFG = KINOVA_CFG.copy()
+FRANKA_PANDA_HIGH_PD_CFG.spawn.rigid_props.disable_gravity = True
+FRANKA_PANDA_HIGH_PD_CFG.actuators["arm"].stiffness = 400.0
+FRANKA_PANDA_HIGH_PD_CFG.actuators["arm"].damping = 80.0
+FRANKA_PANDA_HIGH_PD_CFG.actuators["end_effector"].stiffness = 400.0
+FRANKA_PANDA_HIGH_PD_CFG.actuators["end_effector"].damping = 80.0
 """Configuration of Franka Emika Panda robot with stiffer PD control.
 
 This configuration is useful for task-space control using differential IK.

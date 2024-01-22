@@ -26,12 +26,14 @@ simulation_app = app_launcher.app
 
 
 """Rest everything follows."""
-
+import sys
+import os
 import gymnasium as gym
 from prettytable import PrettyTable
 
-import omni.isaac.contrib_tasks  # noqa: F401
+# import omni.isaac.contrib_tasks  # noqa: F401
 # import omni.isaac.orbit_tasks  # noqa: F401
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 import orbit_tasks  # noqa: F401
 
 
@@ -44,7 +46,7 @@ def main():
     table.align["Task Name"] = "l"
     table.align["Entry Point"] = "l"
     table.align["Config"] = "l"
-
+    
     # count of environments
     index = 0
     # acquire all Isaac environments names

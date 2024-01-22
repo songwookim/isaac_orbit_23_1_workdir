@@ -71,7 +71,7 @@ from omni.isaac.orbit_tasks.utils.wrappers.rsl_rl import RslRlOnPolicyRunnerCfg,
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True
 torch.backends.cudnn.deterministic = False
-torch.backends.cudnn.benchmark = False
+torch.backends.cudnn.benchmark = False    
 
 
 def main():
@@ -93,6 +93,7 @@ def main():
     # create isaac environment
     # env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array", RenderMode="PARTIAL_RENDERING")
+
     # wrap for video recording
     if args_cli.video:
         video_kwargs = {
