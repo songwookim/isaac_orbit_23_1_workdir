@@ -76,26 +76,15 @@ class ObjectTableSceneCfg(InteractiveSceneCfg):
 
 @configclass
 class CommandsCfg:
-    """Command terms for the MDP.
-
-    robot end-effector pose 에 대한 action command range !!
-    ex) pos_z = (1,-1) 이라면 end-effector가 z축으로 1 ~ -1 까지 움직일 수 있음
-    """
+    """Command terms for the MDP."""
 
     object_pose = mdp.UniformPoseCommandCfg(
         asset_name="robot",
         body_name=MISSING,  # will be set by agent env cfg
-        resampling_time_range=(10.0, 10.0),
+        resampling_time_range=(5.0, 5.0),
         debug_vis=True,
         ranges=mdp.UniformPoseCommandCfg.Ranges(
-            # pos_x=(0.4, 0.6),
-            pos_y=(-0.5, 0.5),
-            pos_x=(0.2, 0.8),
-            # pos_z=(0.25, 0.5),
-            pos_z=(0.55, 0.7),
-            roll=(0.0, 0.0),
-            pitch=(0.0, 0.0),
-            yaw=(0, 0),
+            pos_x=(0.4, 0.6), pos_y=(-0.25, 0.25), pos_z=(0.25, 0.5), roll=(0.0, 0.0), pitch=(0.0, 0.0), yaw=(0.0, 0.0)
         ),
     )
 
@@ -141,7 +130,7 @@ class RandomizationCfg:
         func=mdp.reset_root_state_uniform,
         mode="reset",
         params={
-            "pose_range": {"x": (0.3, 0.5), "y": (-0.25, 0.25), "z": (0.0, 0.0)},
+            "pose_range": {"x": (-0.1, 0.1), "y": (-0.25, 0.25), "z": (0.0, 0.0)},
             "velocity_range": {},
             "asset_cfg": SceneEntityCfg("object", body_names="Object"),
         },
@@ -154,18 +143,11 @@ class RewardsCfg:
 
     reaching_object = RewTerm(
         func=mdp.object_ee_distance,
-        params={"std": 0.5},
-        weight=5.0)
-    
-    orient_object = RewTerm(
-        func=mdp.object_ee_orient,
-        params={"std": 0.5},
-        weight=2.5)
+        params={"std": 0.1},
+        weight=10.0)
+    # reaching_object = RewTerm(func=mdp.object_ee_orient, params={"std": 0.1}, weight=1.0)
 
-    lifting_object = RewTerm(
-        func=mdp.object_is_lifted, 
-        params={"minimal_height": 0.06}, 
-        weight=15.0)
+    lifting_object = RewTerm(func=mdp.object_is_lifted, params={"minimal_height": 0.06}, weight=20.0)
 
     object_goal_tracking = RewTerm(
         func=mdp.object_goal_distance,
@@ -193,7 +175,7 @@ class RewardsCfg:
 class TerminationsCfg:
     """Termination terms for the MDP."""
 
-    time_out = DoneTerm(func=mdp.time_out, time_out=False)
+    time_out = DoneTerm(func=mdp.time_out, time_out=True)
 
     object_dropping = DoneTerm(
         func=mdp.base_height, params={"minimum_height": -0.05, "asset_cfg": SceneEntityCfg("object")}
